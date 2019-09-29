@@ -4,6 +4,7 @@ import { node } from 'prop-types'
 const initialState = {
   coins: [],
   favorites: [],
+  isDarkModeOn: false,
 }
 
 function reducer(state, action) {
@@ -18,6 +19,11 @@ function reducer(state, action) {
       return {
         ...state,
         favorites: [...state.favorites.filter((element) => element.id !== action.payload.id)],
+      }
+    case 'TOGGLE_THEME':
+      return {
+        ...state,
+        isDarkModeOn: action.payload,
       }
     default:
       return state

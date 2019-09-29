@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import { Platform } from 'react-native'
-import { createStackNavigator, createBottomTabNavigator } from 'react-navigation'
-
+import { createStackNavigator } from 'react-navigation'
+import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
 import TabBarIcon from '../components/TabBarIcon'
 import HomeScreen from '../screens/HomeScreen'
 import SettingsScreen from '../screens/SettingsScreen'
@@ -20,12 +20,12 @@ const HomeStack = createStackNavigator(
   config
 )
 
-HomeStack.navigationOptions = {
+HomeStack.navigationOptions = () => ({
   tabBarLabel: 'Crypto Info',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name="bitcoin" />
   ),
-}
+})
 
 HomeStack.path = ''
 
@@ -36,12 +36,12 @@ const SettingsStack = createStackNavigator(
   config
 )
 
-SettingsStack.navigationOptions = {
+SettingsStack.navigationOptions = () => ({
   tabBarLabel: 'Settings',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name="cog" />
   ),
-}
+})
 
 SettingsStack.path = ''
 
@@ -52,21 +52,21 @@ const FavoritesStack = createStackNavigator(
   config
 )
 
-FavoritesStack.navigationOptions = {
+FavoritesStack.navigationOptions = () => ({
   tabBarLabel: 'Favorites',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name="star" />
   ),
-}
+})
 
 FavoritesStack.path = ''
 
-const tabNavigator = createBottomTabNavigator({
+const MainTabNavigator = createMaterialBottomTabNavigator({
   HomeStack,
   FavoritesStack,
   SettingsStack,
 })
 
-tabNavigator.path = ''
+MainTabNavigator.path = ''
 
-export default tabNavigator
+export default MainTabNavigator

@@ -16,7 +16,7 @@ function TabBarIcon({ theme, name, focused }) {
       name={name}
       size={26}
       style={styles.icon}
-      color={focused ? colors.primary : colors.disabled}
+      color={focused ? colors.accent : colors.disabled}
     />
   )
 }

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native'
 import {
   withTheme,
   Title,
-  Paragraph,
   Caption,
   Modal,
   Divider,
@@ -12,10 +11,12 @@ import {
   Portal,
   Searchbar,
   Button,
+  DarkTheme,
+  DefaultTheme,
 } from 'react-native-paper'
 import { get } from 'lodash'
-import { fetchData } from '../constants/api'
 import { useStateValue } from '../Store'
+import { themePropTypes } from '../constants/propTypes'
 
 const styles = StyleSheet.create({
   flatListContainer: {
@@ -68,10 +69,9 @@ const styles = StyleSheet.create({
   },
 })
 
-function FavoritesScreen({ theme, ...props }) {
+function FavoritesScreen({ theme }) {
   const [isModalVisible, setModalVisibility] = useState(false)
-  const [isLoading, setLoading] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [isLoading] = useState(false)
   const [state, dispatch] = useStateValue()
   const { favorites } = state
   const isFavorited = ({ item }) => favorites.includes(item)
@@ -119,8 +119,6 @@ $
                 style={{ color: priceChange24h < 0 ? colors.error : colors.accent }}
               >
                 {priceChange24h}
-                {' '}
-$
               </Caption>
             </View>
           </View>
@@ -140,8 +138,8 @@ $
   }
 
   const renderItemSeparator = () => <Divider style={styles.divider} />
-  const renderHeader = () => <Searchbar style={styles.searchBar} />
-
+  const renderHeader = () => favorites.length > 0 && <Searchbar style={styles.searchBar} />
+  const renderEmpty = () => <Caption>No favorites selected yet.</Caption>
   const renderFooter = () => isLoading && <Button style={styles.footer} loading={isLoading} />
 
   return (
@@ -158,6 +156,7 @@ $
         ItemSeparatorComponent={renderItemSeparator}
         ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmpty}
         renderItem={renderItem}
         initialNumToRender={20}
         keyExtractor={keyExtractor}
@@ -168,8 +167,17 @@ $
   )
 }
 
-FavoritesScreen.navigationOptions = {
-  title: 'Home',
+FavoritesScreen.propTypes = {
+  theme: themePropTypes,
 }
+FavoritesScreen.navigationOptions = ({ theme }) => ({
+  title: 'Favorites',
+  headerStyle: {
+    backgroundColor: theme === 'light' ? DefaultTheme.colors.surface : DarkTheme.colors.surface,
+  },
+  headerTitleStyle: {
+    color: theme === 'light' ? DefaultTheme.colors.text : DarkTheme.colors.text,
+  },
+})
 
 export default withTheme(FavoritesScreen)

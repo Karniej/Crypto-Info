@@ -4,15 +4,11 @@ import * as Font from 'expo-font'
 import React, { useState } from 'react'
 import { Platform, StatusBar, StyleSheet, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
+import { DefaultTheme, DarkTheme, Provider as PaperProvider } from 'react-native-paper'
 import { bool } from 'prop-types'
-import AppNavigator from './navigation/AppNavigator'
-import { StoreProvider } from './Store'
 
-const theme = {
-  ...DefaultTheme,
-  dark: true,
-}
+import AppNavigator from './navigation/AppNavigator'
+import { StoreProvider, Store } from './Store'
 
 const styles = StyleSheet.create({
   container: {
@@ -46,7 +42,7 @@ function handleFinishLoading(setLoadingComplete) {
   setLoadingComplete(true)
 }
 
-export default function App({ skipLoadingScreen }) {
+function App({ skipLoadingScreen }) {
   const [isLoadingComplete, setLoadingComplete] = useState(false)
 
   if (!isLoadingComplete && !skipLoadingScreen) {
@@ -63,14 +59,23 @@ export default function App({ skipLoadingScreen }) {
     <View style={styles.container}>
       {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
       <StoreProvider>
-        <PaperProvider theme={theme}>
-          <AppNavigator />
-        </PaperProvider>
+        <Store.Consumer>
+          { (value) => {
+            const { isDarkModeOn } = value[0]
+
+            return (
+              <PaperProvider theme={isDarkModeOn ? DarkTheme : DefaultTheme}>
+                <AppNavigator theme={isDarkModeOn ? 'dark' : 'light'} />
+              </PaperProvider>
+            )
+          }}
+        </Store.Consumer>
       </StoreProvider>
     </View>
   )
 }
 
+export default App
 App.propTypes = {
   skipLoadingScreen: bool.isRequired,
 }
