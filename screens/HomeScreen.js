@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 16,
+    borderRadius: 8,
   },
 })
 

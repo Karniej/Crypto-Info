@@ -55,6 +55,26 @@ function App({ skipLoadingScreen }) {
     )
   }
 
+  const customTheme = {
+    dark: false,
+    roundness: 4,
+    colors: {
+      primary: '#034748',
+      accent: '#11B5E4',
+      background: '#F1F7ED',
+      surface: '#F1F7ED',
+      text: '#001021',
+      error: '#B71F0E',
+      disabled: '#BEC6C6',
+      placeholder: '#1481BA',
+      backdrop: '#001021',
+    },
+    fonts: {
+      regular: 'Helvetica Neue',
+      medium: 'Helvetica Neue Light',
+    },
+  }
+
   return (
     <View style={styles.container}>
       {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
@@ -64,7 +84,7 @@ function App({ skipLoadingScreen }) {
             const { isDarkModeOn } = value[0]
 
             return (
-              <PaperProvider theme={isDarkModeOn ? DarkTheme : DefaultTheme}>
+              <PaperProvider theme={isDarkModeOn ? DarkTheme : customTheme}>
                 <AppNavigator theme={isDarkModeOn ? 'dark' : 'light'} />
               </PaperProvider>
             )

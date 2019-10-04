@@ -5,6 +5,9 @@ import { shape, string } from 'prop-types'
 import { themePropTypes } from '../constants/propTypes'
 
 const styles = StyleSheet.create({
+  scrollView: {
+    height: '75%',
+  },
   sectionContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -13,7 +16,6 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     margin: 16,
     padding: 16,
-    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -28,6 +30,7 @@ const CustomModal = ({ item, theme }) => {
 
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={[styles.scrollViewContent, { backgroundColor: colors.surface }]}
     >
       <Avatar.Image
