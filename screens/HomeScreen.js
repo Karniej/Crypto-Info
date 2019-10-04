@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import React, { useEffect, useState } from 'react'
 import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native'
 import {
@@ -7,69 +8,28 @@ import {
   Divider,
   Avatar,
   Surface,
-  Searchbar,
   Button,
+  Portal,
+  Modal,
   DarkTheme,
   DefaultTheme,
 } from 'react-native-paper'
 import { get } from 'lodash'
-import { fetchData } from '../constants/api'
+import { fetchData, fetchSingleItem } from '../constants/api'
 import { themePropTypes } from '../constants/propTypes'
 import { useStateValue } from '../Store'
-
-const styles = StyleSheet.create({
-  flatListContainer: {
-    width: '100%',
-    paddingVertical: 16,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 8,
-  },
-  contentContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  searchBar: {
-    width: '95%',
-    marginBottom: 8,
-  },
-  infoContainer: {
-    flexGrow: 1,
-  },
-  surfaceContainer: {
-    width: '100%',
-  },
-  surface: {
-    width: '100%',
-    paddingVertical: 8,
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  divider: {
-    width: '100%',
-  },
-  sectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  avatar: {
-    marginHorizontal: 8,
-  },
-  footer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  coinName: {
-    textTransform: 'uppercase',
-  },
-})
+import CustomModal from '../components/CustomModal'
 
 function HomeScreen({ theme }) {
   const [isLoading, setLoading] = useState(false)
+  const [currentItem, setCurrentItem] = useState({
+    currentPrice: 'placeholder',
+    description: 'placeholder',
+    image: 'placeholder',
+    marketCap: 'placeholder',
+    name: 'placeholder',
+  })
+  const [isModalVisible, setModalVisibility] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [state, dispatch] = useStateValue()
   const { coins, favorites } = state
@@ -121,6 +81,30 @@ function HomeScreen({ theme }) {
   }
   const keyExtractor = (item, index) => `${item.id}${Math.random()}` || `${index}`
 
+  const getCurrentItemInfo = async (item) => {
+    const id = get(item, 'item.id')
+    const name = get(item, 'item.name')
+    const currentPrice = get(item, 'item.current_price')
+    const image = get(item, 'item.image')
+    const marketCap = get(item, 'item.market_cap')
+
+    const fetchedData = await fetchSingleItem(id)
+    const { description } = fetchedData
+
+    const currentItemWithData = {
+      name,
+      currentPrice,
+      image,
+      marketCap,
+      description: description.en,
+    }
+    await setCurrentItem(currentItemWithData)
+
+    setModalVisibility(!isModalVisible)
+  }
+
+  const renderModalContent = () => <CustomModal item={currentItem} />
+
   const renderItem = (item) => {
     const image = get(item, 'item.image')
     const priceChange24h = get(item, 'item.price_change_24h')
@@ -128,7 +112,10 @@ function HomeScreen({ theme }) {
     const symbol = get(item, 'item.symbol')
 
     return (
-      <View style={styles.surfaceContainer}>
+      <TouchableOpacity
+        onPress={() => getCurrentItemInfo(item)}
+        style={styles.surfaceContainer}
+      >
         <Surface style={styles.surface}>
           <Avatar.Image style={styles.avatar} size={28} source={{ uri: image && image }} />
           <View style={styles.infoContainer}>
@@ -164,23 +151,31 @@ function HomeScreen({ theme }) {
             />
           </TouchableOpacity>
         </Surface>
-      </View>
+      </TouchableOpacity>
     )
   }
 
   const renderItemSeparator = () => <Divider style={styles.divider} />
-  const renderHeader = () => <Searchbar style={styles.searchBar} />
 
   const renderFooter = () => isLoading && <Button style={styles.footer} loading={isLoading} />
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          contentContainerStyle={styles.modalContent}
+          dissmisable
+          onDismiss={() => setModalVisibility(false)}
+        >
+          {renderModalContent()}
+        </Modal>
+      </Portal>
       <FlatList
         style={styles.flatListContainer}
         data={coins}
         extraData={coins}
         ItemSeparatorComponent={renderItemSeparator}
-        ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
         renderItem={renderItem}
         initialNumToRender={20}
@@ -196,6 +191,56 @@ function HomeScreen({ theme }) {
 HomeScreen.propTypes = {
   theme: themePropTypes,
 }
+
+const styles = StyleSheet.create({
+  flatListContainer: {
+    width: '100%',
+    paddingVertical: 16,
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 8,
+  },
+  contentContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  infoContainer: {
+    flexGrow: 1,
+  },
+  surfaceContainer: {
+    width: '100%',
+  },
+  surface: {
+    width: '100%',
+    paddingVertical: 8,
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  divider: {
+    width: '100%',
+  },
+  sectionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  avatar: {
+    marginHorizontal: 8,
+  },
+  footer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  coinName: {
+    textTransform: 'uppercase',
+  },
+  modalContent: {
+    margin: 16,
+  },
+})
 
 HomeScreen.navigationOptions = ({ theme }) => ({
   headerStyle: {

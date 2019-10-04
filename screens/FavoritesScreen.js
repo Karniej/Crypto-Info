@@ -9,7 +9,6 @@ import {
   Avatar,
   Surface,
   Portal,
-  Searchbar,
   Button,
   DarkTheme,
   DefaultTheme,
@@ -31,10 +30,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-  },
-  searchBar: {
-    width: '95%',
-    marginBottom: 8,
   },
   infoContainer: {
     flexGrow: 1,
@@ -138,7 +133,6 @@ $
   }
 
   const renderItemSeparator = () => <Divider style={styles.divider} />
-  const renderHeader = () => favorites.length > 0 && <Searchbar style={styles.searchBar} />
   const renderEmpty = () => <Caption>No favorites selected yet.</Caption>
   const renderFooter = () => isLoading && <Button style={styles.footer} loading={isLoading} />
 
@@ -154,7 +148,6 @@ $
         data={favorites}
         extraData={favorites}
         ItemSeparatorComponent={renderItemSeparator}
-        ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmpty}
         renderItem={renderItem}
