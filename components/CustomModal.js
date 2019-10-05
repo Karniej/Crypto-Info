@@ -35,7 +35,7 @@ const CustomModal = ({ item, theme }) => {
     >
       <Avatar.Image
         style={styles.avatar}
-        size={38}
+        size={80}
         source={{ uri: image }}
       />
       <Title>{name}</Title>
