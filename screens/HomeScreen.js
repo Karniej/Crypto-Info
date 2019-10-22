@@ -1,24 +1,18 @@
 /* eslint-disable no-use-before-define */
 import React, { useEffect, useState } from 'react'
-import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native'
+import { FlatList, StyleSheet, View } from 'react-native'
 import {
   withTheme,
-  Title,
-  Caption,
   Divider,
-  Avatar,
-  Surface,
   Button,
   Portal,
   Modal,
-  DarkTheme,
-  DefaultTheme,
 } from 'react-native-paper'
-import { get } from 'lodash'
-import { fetchData, fetchSingleItem } from '../constants/api'
-import { themePropTypes } from '../constants/propTypes'
+import { propTypes, constants, api } from '../constants'
 import { useStateValue } from '../Store'
-import CustomModal from '../components/CustomModal'
+import { CustomModal, ListElement } from '../components'
+
+const { fetchData, fetchSingleItem } = api
 
 function HomeScreen({ theme }) {
   const [isLoading, setLoading] = useState(false)
@@ -33,7 +27,7 @@ function HomeScreen({ theme }) {
   const [currentPage, setCurrentPage] = useState(1)
   const [state, dispatch] = useStateValue()
   const { coins, favorites } = state
-  const isFavorited = ({ item }) => favorites.includes(item)
+  const isFavorited = (item) => favorites.includes(item)
   const { colors } = theme
 
   useEffect(() => {
@@ -66,7 +60,7 @@ function HomeScreen({ theme }) {
     })
   }
 
-  const handleFavorites = ({ item }) => {
+  const handleFavorites = (item) => {
     if (favorites.includes(item)) {
       return dispatch({
         type: 'REMOVE_FROM_FAVORITES',
@@ -82,14 +76,12 @@ function HomeScreen({ theme }) {
   const keyExtractor = (item, index) => `${item.id}${Math.random()}` || `${index}`
 
   const getCurrentItemInfo = async (item) => {
-    const id = get(item, 'item.id')
-    const name = get(item, 'item.name')
-    const currentPrice = get(item, 'item.current_price')
-    const image = get(item, 'item.image')
-    const marketCap = get(item, 'item.market_cap')
+    const { id, name, image } = item
+    const currentPrice = item.current_price
+    const marketCap = item.market_cap
 
     const fetchedData = await fetchSingleItem(id)
-    const { description } = fetchedData
+    const { description } = await fetchedData
 
     const currentItemWithData = {
       name,
@@ -105,55 +97,15 @@ function HomeScreen({ theme }) {
 
   const renderModalContent = () => <CustomModal item={currentItem} />
 
-  const renderItem = (item) => {
-    const image = get(item, 'item.image')
-    const priceChange24h = get(item, 'item.price_change_24h')
-    const currentPrice = get(item, 'item.current_price')
-    const symbol = get(item, 'item.symbol')
-
-    return (
-      <TouchableOpacity
-        onPress={() => getCurrentItemInfo(item)}
-        style={styles.surfaceContainer}
-      >
-        <Surface style={styles.surface}>
-          <Avatar.Image style={styles.avatar} size={28} source={{ uri: image && image }} />
-          <View style={styles.infoContainer}>
-            <View style={styles.sectionContainer}>
-              <Title
-                numberOfLines={1}
-                style={styles.coinName}
-              >
-                {symbol }
-              </Title>
-              <Title style={{ color: colors.primary }}>
-                {' $'}
-                {currentPrice}
-              </Title>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Caption>Last 24h: </Caption>
-              <Caption
-                style={{ color: priceChange24h < 0 ? colors.error : colors.accent }}
-              >
-                {priceChange24h}
-              </Caption>
-            </View>
-          </View>
-          <TouchableOpacity hitSlop={{ x: 10, y: 10 }} onPress={() => handleFavorites(item)}>
-            <Avatar.Icon
-              size={28}
-              icon="stars"
-              style={[
-                styles.avatar,
-                { backgroundColor: isFavorited(item) ? colors.accent : colors.disabled },
-              ]}
-            />
-          </TouchableOpacity>
-        </Surface>
-      </TouchableOpacity>
-    )
-  }
+  // eslint-disable-next-line react/prop-types
+  const renderItem = ({ item }) => (
+    <ListElement
+      item={item}
+      onPressListElement={() => getCurrentItemInfo(item)}
+      onPressAddToFavorites={() => handleFavorites(item)}
+      isFavorited={isFavorited(item)}
+    />
+  )
 
   const renderItemSeparator = () => <Divider style={styles.divider} />
 
@@ -189,7 +141,7 @@ function HomeScreen({ theme }) {
 }
 
 HomeScreen.propTypes = {
-  theme: themePropTypes,
+  theme: propTypes.themePropTypes,
 }
 
 const styles = StyleSheet.create({
@@ -206,37 +158,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  infoContainer: {
-    flexGrow: 1,
-  },
-  surfaceContainer: {
-    width: '100%',
-  },
-  surface: {
-    width: '100%',
-    paddingVertical: 8,
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  divider: {
-    width: '100%',
-  },
-  sectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  avatar: {
-    marginHorizontal: 8,
-  },
-  footer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  coinName: {
-    textTransform: 'uppercase',
-  },
   modalContent: {
     margin: 16,
     borderRadius: 8,
@@ -245,10 +166,10 @@ const styles = StyleSheet.create({
 
 HomeScreen.navigationOptions = ({ theme }) => ({
   headerStyle: {
-    backgroundColor: theme === 'light' ? DefaultTheme.colors.surface : DarkTheme.colors.surface,
+    backgroundColor: constants.isLightTheme(theme, 'surface'),
   },
   headerTitleStyle: {
-    color: theme === 'light' ? DefaultTheme.colors.text : DarkTheme.colors.text,
+    color: constants.isLightTheme(theme, 'text'),
   },
   title: 'Crypto Info',
 })

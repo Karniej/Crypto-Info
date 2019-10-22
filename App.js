@@ -4,8 +4,9 @@ import * as Font from 'expo-font'
 import React, { useState } from 'react'
 import { Platform, StatusBar, StyleSheet, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { DefaultTheme, DarkTheme, Provider as PaperProvider } from 'react-native-paper'
+import { Provider as PaperProvider } from 'react-native-paper'
 import { bool } from 'prop-types'
+import { themes } from './constants'
 
 import AppNavigator from './navigation/AppNavigator'
 import { StoreProvider, Store } from './Store'
@@ -55,26 +56,6 @@ function App({ skipLoadingScreen }) {
     )
   }
 
-  const customTheme = {
-    dark: false,
-    roundness: 4,
-    colors: {
-      primary: '#034748',
-      accent: '#11B5E4',
-      background: '#F1F7ED',
-      surface: '#F1F7ED',
-      text: '#001021',
-      error: '#B71F0E',
-      disabled: '#BEC6C6',
-      placeholder: '#1481BA',
-      backdrop: '#001021',
-    },
-    fonts: {
-      regular: 'Helvetica Neue',
-      medium: 'Helvetica Neue Light',
-    },
-  }
-
   return (
     <View style={styles.container}>
       {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
@@ -84,7 +65,7 @@ function App({ skipLoadingScreen }) {
             const { isDarkModeOn } = value[0]
 
             return (
-              <PaperProvider theme={isDarkModeOn ? DarkTheme : customTheme}>
+              <PaperProvider theme={isDarkModeOn ? themes.primaryDark : themes.primary}>
                 <AppNavigator theme={isDarkModeOn ? 'dark' : 'light'} />
               </PaperProvider>
             )

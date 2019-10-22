@@ -12,6 +12,6 @@ const themePropTypes = shape({
   dark: bool,
 })
 
-export {
+export default {
   themePropTypes,
 }

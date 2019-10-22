@@ -1,8 +1,8 @@
 import React from 'react'
 import { ScrollView, View, StyleSheet } from 'react-native'
 import { Subheading, Title, Avatar, Paragraph, withTheme } from 'react-native-paper'
-import { shape, string } from 'prop-types'
-import { themePropTypes } from '../constants/propTypes'
+import { shape, string, number } from 'prop-types'
+import { propTypes } from '../constants'
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -53,12 +53,12 @@ const CustomModal = ({ item, theme }) => {
 }
 
 CustomModal.propTypes = {
-  theme: themePropTypes,
+  theme: propTypes.themePropTypes,
   item: shape({
     name: string,
     description: string,
     image: string,
-    currentPrice: string,
+    currentPrice: number,
     marketCap: string,
   }),
 }

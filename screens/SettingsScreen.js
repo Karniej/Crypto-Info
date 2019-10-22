@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import { Switch, Subheading, withTheme, DarkTheme, DefaultTheme } from 'react-native-paper'
-import { themePropTypes } from '../constants/propTypes'
+import { Switch, Subheading, withTheme } from 'react-native-paper'
+import { propTypes, constants } from '../constants'
 import { useStateValue } from '../Store'
 
 const styles = StyleSheet.create({
@@ -33,7 +33,7 @@ function SettingsScreen({ theme }) {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={styles.row}>
-        <Subheading style={{ color: colors.primary }}>Dark Mode</Subheading>
+        <Subheading style={{ color: colors.accent }}>Dark Mode</Subheading>
         <Switch value={isDarkModeOn} onValueChange={handleThemeChange} />
       </View>
     </View>
@@ -41,16 +41,16 @@ function SettingsScreen({ theme }) {
 }
 
 SettingsScreen.propTypes = {
-  theme: themePropTypes,
+  theme: propTypes.themePropTypes,
 }
 
 SettingsScreen.navigationOptions = ({ theme }) => ({
   title: 'Settings',
   headerStyle: {
-    backgroundColor: theme === 'light' ? DefaultTheme.colors.surface : DarkTheme.colors.surface,
+    backgroundColor: constants.isLightTheme(theme, 'surface'),
   },
   headerTitleStyle: {
-    color: theme === 'light' ? DefaultTheme.colors.text : DarkTheme.colors.text,
+    color: constants.isLightTheme(theme, 'text'),
   },
 })
 

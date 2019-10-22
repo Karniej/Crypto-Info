@@ -10,12 +10,10 @@ import {
   Surface,
   Portal,
   Button,
-  DarkTheme,
-  DefaultTheme,
 } from 'react-native-paper'
 import { get } from 'lodash'
 import { useStateValue } from '../Store'
-import { themePropTypes } from '../constants/propTypes'
+import { propTypes, constants } from '../constants'
 
 const styles = StyleSheet.create({
   flatListContainer: {
@@ -161,15 +159,15 @@ $
 }
 
 FavoritesScreen.propTypes = {
-  theme: themePropTypes,
+  theme: propTypes.themePropTypes,
 }
 FavoritesScreen.navigationOptions = ({ theme }) => ({
   title: 'Favorites',
   headerStyle: {
-    backgroundColor: theme === 'light' ? DefaultTheme.colors.surface : DarkTheme.colors.surface,
+    backgroundColor: constants.isLightTheme(theme, 'surface'),
   },
   headerTitleStyle: {
-    color: theme === 'light' ? DefaultTheme.colors.text : DarkTheme.colors.text,
+    color: constants.isLightTheme(theme, 'text'),
   },
 })
 
