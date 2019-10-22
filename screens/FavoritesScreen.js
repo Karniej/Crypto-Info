@@ -1,19 +1,18 @@
 import React, { useState } from 'react'
-import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native'
+import { FlatList, StyleSheet, View } from 'react-native'
 import {
   withTheme,
-  Title,
   Caption,
   Modal,
   Divider,
-  Avatar,
-  Surface,
   Portal,
   Button,
 } from 'react-native-paper'
-import { get } from 'lodash'
 import { useStateValue } from '../Store'
-import { propTypes, constants } from '../constants'
+import { propTypes, constants, api } from '../constants'
+import { CustomModal, ListElement } from '../components'
+
+const { fetchSingleItem } = api
 
 const styles = StyleSheet.create({
   flatListContainer: {
@@ -29,41 +28,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  infoContainer: {
-    flexGrow: 1,
-  },
-  surfaceContainer: {
-    width: '100%',
-  },
-  surface: {
-    width: '100%',
-    paddingVertical: 8,
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
   divider: {
     width: '100%',
   },
-  sectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  avatar: {
-    marginHorizontal: 8,
-  },
+
   footer: {
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
   },
-  coinName: {
-    textTransform: 'uppercase',
-  },
+
 })
 
 function FavoritesScreen({ theme }) {
   const [isModalVisible, setModalVisibility] = useState(false)
+  const [currentItem, setCurrentItem] = useState({
+    currentPrice: 'placeholder',
+    description: 'placeholder',
+    image: 'placeholder',
+    marketCap: 'placeholder',
+    name: 'placeholder',
+  })
   const [isLoading] = useState(false)
   const [state, dispatch] = useStateValue()
   const { favorites } = state
@@ -82,63 +67,50 @@ function FavoritesScreen({ theme }) {
       payload: item,
     })
   }
+  const getCurrentItemInfo = async (item) => {
+    const { id, name, image } = item
+    const currentPrice = item.current_price
+    const marketCap = item.market_cap
+    const fetchedData = await fetchSingleItem(id)
+    const { description } = await fetchedData
+
+    const currentItemWithData = {
+      name,
+      currentPrice,
+      image,
+      marketCap,
+      description: description.en,
+    }
+    await setCurrentItem(currentItemWithData)
+
+    setModalVisibility(!isModalVisible)
+  }
   const keyExtractor = (item, index) => `${item.id}${Math.random()}` || `${index}`
 
-  const renderItem = (item) => {
-    const image = get(item, 'item.image')
-    const priceChange24h = get(item, 'item.price_change_24h')
-    const currentPrice = get(item, 'item.current_price')
-    const symbol = get(item, 'item.symbol')
-
-    return (
-      <TouchableOpacity style={styles.surfaceContainer} onPress={() => setModalVisibility(true)}>
-        <Surface style={styles.surface}>
-          <Avatar.Image style={styles.avatar} size={28} source={{ uri: image && image }} />
-          <View style={styles.infoContainer}>
-            <View style={styles.sectionContainer}>
-              <Title numberOfLines={1} style={styles.coinName}>
-                {symbol}
-:
-                {' '}
-              </Title>
-              <Title style={{ color: colors.primary }}>
-$
-                {currentPrice}
-              </Title>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Caption>Last 24h: </Caption>
-              <Caption
-                style={{ color: priceChange24h < 0 ? colors.error : colors.accent }}
-              >
-                {priceChange24h}
-              </Caption>
-            </View>
-          </View>
-          <TouchableOpacity hitSlop={{ x: 10, y: 10 }} onPress={() => handleFavorites(item)}>
-            <Avatar.Icon
-              size={28}
-              icon="stars"
-              style={[
-                styles.avatar,
-                { backgroundColor: isFavorited(item) ? colors.accent : colors.disabled },
-              ]}
-            />
-          </TouchableOpacity>
-        </Surface>
-      </TouchableOpacity>
-    )
-  }
+  // eslint-disable-next-line react/prop-types
+  const renderItem = ({ item }) => (
+    <ListElement
+      item={item}
+      onPressListElement={() => getCurrentItemInfo(item)}
+      onPressAddToFavorites={() => handleFavorites(item)}
+      isFavorited={isFavorited(item)}
+    />)
 
   const renderItemSeparator = () => <Divider style={styles.divider} />
   const renderEmpty = () => <Caption>No favorites selected yet.</Caption>
   const renderFooter = () => isLoading && <Button style={styles.footer} loading={isLoading} />
+  const renderModalContent = () => <CustomModal item={currentItem} />
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Portal>
-        <Modal dissmisable visible={isModalVisible} onDismiss={() => setModalVisibility(false)}>
-          <Title>Example Modal</Title>
+        <Modal
+          visible={isModalVisible}
+          contentContainerStyle={styles.modalContent}
+          dissmisable
+          onDismiss={() => setModalVisibility(false)}
+        >
+          {renderModalContent()}
         </Modal>
       </Portal>
       <FlatList

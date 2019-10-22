@@ -1,3 +1,5 @@
+import { configureFonts } from 'react-native-paper'
+
 const fonts = {
   regular: 'Helvetica Neue',
   medium: 'HelveticaNeue-Medium',
@@ -19,7 +21,7 @@ const primary = {
     placeholder: '#1481BA',
     backdrop: '#001021',
   },
-  fonts,
+  fonts: configureFonts(fonts),
 }
 
 const primaryDark = {
@@ -36,7 +38,7 @@ const primaryDark = {
     placeholder: '#034748',
     backdrop: '#343434',
   },
-  fonts,
+  fonts: configureFonts(fonts),
 }
 
 export default {
