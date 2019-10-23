@@ -1,24 +1,9 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 import { Switch, Subheading, withTheme } from 'react-native-paper'
-import { propTypes, constants } from '../constants'
-import { useStateValue } from '../Store'
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    elevation: 2,
-    padding: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    width: '100%',
-  },
-})
+import { propTypes, constants } from '../../constants'
+import { useStateValue } from '../../Store'
+import styles from './SettingsScreen.styles'
 
 function SettingsScreen({ theme }) {
   const { colors } = theme

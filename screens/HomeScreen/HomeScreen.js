@@ -1,47 +1,22 @@
-import React, { useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+/* eslint-disable no-use-before-define */
+import React, { useEffect, useState } from 'react'
+import { FlatList, View } from 'react-native'
 import {
   withTheme,
-  Caption,
-  Modal,
   Divider,
-  Portal,
   Button,
+  Portal,
+  Modal,
 } from 'react-native-paper'
-import { useStateValue } from '../Store'
-import { propTypes, constants, api } from '../constants'
-import { CustomModal, ListElement } from '../components'
+import { propTypes, constants, api } from '../../constants'
+import { useStateValue } from '../../Store'
+import { CustomModal, ListElement } from '../../components'
+import styles from './HomeScreen.styles'
 
-const { fetchSingleItem } = api
+const { fetchData, fetchSingleItem } = api
 
-const styles = StyleSheet.create({
-  flatListContainer: {
-    width: '100%',
-    paddingVertical: 16,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 8,
-  },
-  contentContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  divider: {
-    width: '100%',
-  },
-
-  footer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-
-})
-
-function FavoritesScreen({ theme }) {
-  const [isModalVisible, setModalVisibility] = useState(false)
+function HomeScreen({ theme }) {
+  const [isLoading, setLoading] = useState(false)
   const [currentItem, setCurrentItem] = useState({
     currentPrice: 'placeholder',
     description: 'placeholder',
@@ -49,12 +24,44 @@ function FavoritesScreen({ theme }) {
     marketCap: 'placeholder',
     name: 'placeholder',
   })
-  const [isLoading] = useState(false)
+  const [isModalVisible, setModalVisibility] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
   const [state, dispatch] = useStateValue()
-  const { favorites } = state
-  const isFavorited = ({ item }) => favorites.includes(item)
+  const { coins, favorites } = state
+  const isFavorited = (item) => favorites.includes(item)
   const { colors } = theme
-  const handleFavorites = ({ item }) => {
+
+  useEffect(() => {
+    setLoading(true)
+    const fetchCoins = async () => {
+      const data = await fetchData(1)
+
+      setLoading(false)
+
+      return dispatch({
+        type: 'FETCH_DATA',
+        payload: data,
+      })
+    }
+
+    fetchCoins()
+  }, [dispatch])
+
+  const fetchMoreCoins = async () => {
+    setLoading(true)
+
+    await setCurrentPage(currentPage + 1)
+    const data = await fetchData(currentPage)
+
+    setLoading(false)
+
+    return dispatch({
+      type: 'FETCH_MORE_DATA',
+      payload: data,
+    })
+  }
+
+  const handleFavorites = (item) => {
     if (favorites.includes(item)) {
       return dispatch({
         type: 'REMOVE_FROM_FAVORITES',
@@ -67,6 +74,8 @@ function FavoritesScreen({ theme }) {
       payload: item,
     })
   }
+  const keyExtractor = (item, index) => `${item.id}${Math.random()}` || `${index}`
+
   const getCurrentItemInfo = async (item) => {
     const { id, name, image } = item
     const currentPrice = item.current_price
@@ -85,7 +94,8 @@ function FavoritesScreen({ theme }) {
 
     setModalVisibility(!isModalVisible)
   }
-  const keyExtractor = (item, index) => `${item.id}${Math.random()}` || `${index}`
+
+  const renderModalContent = () => <CustomModal item={currentItem} isLoading={isLoading} />
 
   // eslint-disable-next-line react/prop-types
   const renderItem = ({ item }) => (
@@ -94,12 +104,12 @@ function FavoritesScreen({ theme }) {
       onPressListElement={() => getCurrentItemInfo(item)}
       onPressAddToFavorites={() => handleFavorites(item)}
       isFavorited={isFavorited(item)}
-    />)
+    />
+  )
 
   const renderItemSeparator = () => <Divider style={styles.divider} />
-  const renderEmpty = () => <Caption>No favorites selected yet.</Caption>
+
   const renderFooter = () => isLoading && <Button style={styles.footer} loading={isLoading} />
-  const renderModalContent = () => <CustomModal item={currentItem} />
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -115,14 +125,14 @@ function FavoritesScreen({ theme }) {
       </Portal>
       <FlatList
         style={styles.flatListContainer}
-        data={favorites}
-        extraData={favorites}
+        data={coins}
+        extraData={coins}
         ItemSeparatorComponent={renderItemSeparator}
         ListFooterComponent={renderFooter}
-        ListEmptyComponent={renderEmpty}
         renderItem={renderItem}
         initialNumToRender={20}
         keyExtractor={keyExtractor}
+        onEndReached={fetchMoreCoins}
         onEndReachedThreshold={0.2}
         contentContainerStyle={styles.contentContainer}
       />
@@ -130,17 +140,18 @@ function FavoritesScreen({ theme }) {
   )
 }
 
-FavoritesScreen.propTypes = {
+HomeScreen.propTypes = {
   theme: propTypes.themePropTypes,
 }
-FavoritesScreen.navigationOptions = ({ theme }) => ({
-  title: 'Favorites',
+
+HomeScreen.navigationOptions = ({ theme }) => ({
   headerStyle: {
     backgroundColor: constants.isLightTheme(theme, 'surface'),
   },
   headerTitleStyle: {
     color: constants.isLightTheme(theme, 'text'),
   },
+  title: 'Crypto Info',
 })
 
-export default withTheme(FavoritesScreen)
+export default withTheme(HomeScreen)
