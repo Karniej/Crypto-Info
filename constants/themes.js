@@ -22,6 +22,7 @@ const primary = {
     backdrop: '#001021',
   },
   fonts: configureFonts(fonts),
+  animation: { scale: 1.0 },
 }
 
 const primaryDark = {
@@ -39,6 +40,7 @@ const primaryDark = {
     backdrop: '#343434',
   },
   fonts: configureFonts(fonts),
+  animation: { scale: 1.0 },
 }
 
 export default {
