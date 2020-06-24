@@ -1,28 +1,9 @@
 import React from 'react'
-import { ScrollView, View, StyleSheet } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { Subheading, Title, Avatar, Paragraph, withTheme } from 'react-native-paper'
-import { shape, string } from 'prop-types'
-import { themePropTypes } from '../constants/propTypes'
-
-const styles = StyleSheet.create({
-  scrollView: {
-    height: '75%',
-  },
-  sectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  scrollViewContent: {
-    margin: 16,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatar: {
-    marginHorizontal: 8,
-  },
-})
+import { shape, string, number } from 'prop-types'
+import { propTypes } from '../../constants'
+import styles from './CustomModal.styles'
 
 const CustomModal = ({ item, theme }) => {
   const { colors } = theme
@@ -53,13 +34,13 @@ const CustomModal = ({ item, theme }) => {
 }
 
 CustomModal.propTypes = {
-  theme: themePropTypes,
+  theme: propTypes.themePropTypes,
   item: shape({
     name: string,
     description: string,
     image: string,
-    currentPrice: string,
-    marketCap: string,
+    currentPrice: number,
+    marketCap: number,
   }),
 }
 

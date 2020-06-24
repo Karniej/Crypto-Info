@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-len
 const API_URL = 'https://api.coingecko.com/api/v3/coins/'
 
 export async function fetchData(page = 1) {
@@ -20,4 +19,5 @@ export async function fetchSingleItem(id) {
 export default {
   API_URL,
   fetchData,
+  fetchSingleItem,
 }
